@@ -15,6 +15,8 @@ defmodule RePG2.Impl do
 
     try do
       :ets.update_counter(@ets_table, ref_pid_key, {4, +1})
+    else
+      _ -> :ok
     catch
       _, _ ->
         {ref_pid, ref} = do_monitor(pid)
@@ -27,6 +29,8 @@ defmodule RePG2.Impl do
 
     try do
       :ets.update_counter(@ets_table, member_name_pid_key, {2, +1})
+    else
+      _ -> :ok
     catch
       _, _ ->
         :ets.insert(@ets_table, {member_name_pid_key, 1})
@@ -36,6 +40,8 @@ defmodule RePG2.Impl do
 
         :ets.insert(@ets_table, {{:pid, pid, name}})
     end
+
+    :ok
   end
 
   def leave_group(name, pid) do
@@ -57,7 +63,8 @@ defmodule RePG2.Impl do
         ref_pid_key = {:ref, pid}
 
         if :ets.update_counter(@ets_table, ref_pid_key, {4, -1}) == 0 do
-          [{^ref_pid_key, ref_pid, ref, 0}] = :ets.lookup(@ets_table, ref_pid_key)
+          [{^ref_pid_key, ref_pid, ref, 0}] =
+            :ets.lookup(@ets_table, ref_pid_key)
 
           :ets.delete(@ets_table, {:ref, ref})
           :ets.delete(@ets_table, ref_pid_key)
@@ -78,7 +85,8 @@ defmodule RePG2.Impl do
   end
 
   def group_members(name) do
-    for [pid, group_counter] <- :ets.match(@ets_table, {{:member, name, :"$1"}, :"$2"}),
+    for [pid, group_counter] <-
+          :ets.match(@ets_table, {{:member, name, :"$1"}, :"$2"}),
         _ <- 1..group_counter,
       do: pid
   end
@@ -88,6 +96,8 @@ defmodule RePG2.Impl do
         assure_group(name),
         member <- members -- group_members(name),
       do: join_group(name, member)
+
+    :ok
   end
 
   def member_died(ref) do
@@ -97,6 +107,8 @@ defmodule RePG2.Impl do
 
     for name <- names, membership <- memberships_in_group(pid, name),
       do: leave_group(name, membership)
+
+    :ok
   end
 
   def local_group_members(name) do
@@ -105,15 +117,18 @@ defmodule RePG2.Impl do
       do: membership
   end
 
-  def exchange_all_members(node) do
-    GenServer.cast(worker_for(node), {:exchange, Node.self(), all_members()})
+  def exchange_all_members(node_name) do
+    GenServer.cast(
+      worker_for(node_name),
+      {:exchange, Node.self(), all_members()}
+    )
   end
 
   def group_exists?(name),
     do: :ets.member(@ets_table, {:group, name})
 
-  def worker_for(node),
-    do: {__MODULE__, node}
+  def worker_for(node_name),
+    do: {__MODULE__, node_name}
 
   defp all_members() do
     for group <- all_groups(),
@@ -152,7 +167,7 @@ defmodule RePG2.Impl do
         ref = Process.monitor(pid)
 
         receive do
-          {:DOWN, ^ref, :process, ^pid, _info} -> exit(:normal)
+          {:DOWN, ^ref, :process, ^pid, _info} -> :ok
         end
       end
     end

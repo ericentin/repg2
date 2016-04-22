@@ -1,4 +1,8 @@
 defmodule RePG2 do
+  @moduledoc """
+  A translation of the original Erlang pg2 implementation to Elixir for
+  educational purposes and future extensibility potential.
+  """
 
   @ets_table __MODULE__
 

@@ -9,7 +9,6 @@ defmodule RePG2.Worker do
 
   @ets_table RePG2
 
-
   def start_link(),
     do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
 
@@ -19,12 +18,12 @@ defmodule RePG2.Worker do
 
     :ok = :net_kernel.monitor_nodes(true)
 
-    for node <- nodes do
-      send Impl.worker_for(node), {:new_repg2, Node.self()}
-      send self(), {:nodeup, node}
+    for new_node <- nodes do
+      send Impl.worker_for(new_node), {:new_repg2, Node.self()}
+      send self(), {:nodeup, new_node}
     end
 
-    :ets.new(@ets_table, [:ordered_set, :protected, :named_table])
+    @ets_table = :ets.new(@ets_table, [:ordered_set, :protected, :named_table])
 
     {:ok, %{}}
   end
@@ -55,9 +54,12 @@ defmodule RePG2.Worker do
   end
 
   def handle_call(message, from, state) do
-    Logger.warn(
-      "The RePG2 server received an unexpected message:\n" <>
-      "handle_call(#{inspect message}, #{inspect from}, #{inspect state})")
+    _ = Logger.warn(
+      """
+      The RePG2 server received an unexpected message:
+      handle_call(#{inspect message}, #{inspect from}, #{inspect state})
+      """
+    )
 
     {:noreply, state}
   end
@@ -80,14 +82,14 @@ defmodule RePG2.Worker do
     {:noreply, state}
   end
 
-  def handle_info({:nodeup, node}, state) do
-    Impl.exchange_all_members(node)
+  def handle_info({:nodeup, new_node}, state) do
+    Impl.exchange_all_members(new_node)
 
     {:noreply, state}
   end
 
-  def handle_info({:new_repg2, node}, state) do
-    Impl.exchange_all_members(node)
+  def handle_info({:new_repg2, new_node}, state) do
+    Impl.exchange_all_members(new_node)
 
     {:noreply, state}
   end

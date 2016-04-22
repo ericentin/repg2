@@ -1,0 +1,21 @@
+language: elixir
+elixir:
+  - 1.2.4
+otp_release:
+  - 18.3
+sudo: false
+env:
+  - MIX_ENV=test
+  - MIX_ENV=test ELIXIR_ERL_OPTIONS="+T 9"
+before_install:
+  - epmd -daemon
+before_script:
+  - mix compile --warnings-as-errors
+  - mix dialyzer.plt
+script:
+  - mix test --trace
+  - mix dialyzer --halt-exit-status
+  - mix credo --strict
+cache:
+  directories:
+    - .dialyxir
