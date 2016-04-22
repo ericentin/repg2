@@ -15,7 +15,7 @@ defmodule RePG2.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [applications: [:logger],
-     mod: {RePG2, []}]
+     mod: {RePG2.Application, []}]
   end
 
   # Dependencies can be Hex packages:

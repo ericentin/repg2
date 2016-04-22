@@ -1,6 +1,6 @@
 # RePG2
 
-**TODO: Add description**
+A translation of the original Erlang pg2 implementation to Elixir for educational purposes and potential future extensibility
 
 ## Installation
 

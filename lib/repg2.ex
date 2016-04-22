@@ -1,19 +1,84 @@
 defmodule RePG2 do
-  use Application
 
-  # See http://elixir-lang.org/docs/stable/elixir/Application.html
-  # for more information on OTP Applications
-  def start(_type, _args) do
-    import Supervisor.Spec, warn: false
+  @ets_table __MODULE__
 
-    children = [
-      # Define workers and child supervisors to be supervised
-      # worker(RePG2.Worker, [arg1, arg2, arg3]),
-    ]
+  alias RePG2.Impl
 
-    # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: RePG2.Supervisor]
-    Supervisor.start_link(children, opts)
+  def create(name) do
+    unless Impl.group_exists?(name) do
+      global_atomic_multi_call(name, {:create, name})
+    end
+
+    :ok
+  end
+
+  def delete(name) do
+    global_atomic_multi_call(name, {:delete, name})
+
+    :ok
+  end
+
+  def join(name, pid) do
+    if Impl.group_exists?(name) do
+      global_atomic_multi_call(name, {:join, name, pid})
+
+      :ok
+    else
+      {:error, {:no_such_group, name}}
+    end
+  end
+
+  def leave(name, pid) do
+    if Impl.group_exists?(name) do
+      global_atomic_multi_call(name, {:leave, name, pid})
+
+      :ok
+    else
+      {:error, {:no_such_group, name}}
+    end
+  end
+
+  def get_members(name) do
+    if Impl.group_exists?(name) do
+      Impl.group_members(name)
+    else
+      {:error, {:no_such_group, name}}
+    end
+  end
+
+  def get_local_members(name) do
+    if Impl.group_exists?(name) do
+      Impl.local_group_members(name)
+    else
+      {:error, {:no_such_group, name}}
+    end
+  end
+
+  def get_closest_pid(name) do
+    case get_local_members(name) do
+      [pid] ->
+        pid
+
+      [] ->
+        case get_members(name) do
+          [] -> {:error, {:no_process, name}}
+          members -> Enum.random(members)
+        end
+
+      members when is_list members ->
+        Enum.random(members)
+
+      other ->
+        other
+    end
+  end
+
+  def which_groups(),
+    do: Impl.all_groups()
+
+  defp global_atomic_multi_call(name, message) do
+    :global.trans {{__MODULE__, name}, self()}, fn ->
+      GenServer.multi_call(Node.list([:visible, :this]), RePG2.Worker, message)
+    end
   end
 end
