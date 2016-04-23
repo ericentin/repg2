@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/antipax/repg2.svg?branch=master)](https://travis-ci.org/antipax/repg2)
+[![Build Status](https://travis-ci.org/antipax/repg2.svg?branch=master)](https://travis-ci.org/antipax/repg2) [![Coverage Status](https://coveralls.io/repos/github/antipax/repg2/badge.svg?branch=master)](https://coveralls.io/github/antipax/repg2?branch=master)
 
 # RePG2
 
