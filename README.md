@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/antipax/repg2.svg?branch=master)](https://travis-ci.org/antipax/repg2)
+
 # RePG2
 
 A translation of the original Erlang pg2 implementation to Elixir for educational purposes and potential future extensibility
