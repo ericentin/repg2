@@ -13,9 +13,11 @@ before_script:
   - mix compile --warnings-as-errors
   - mix dialyzer.plt
 script:
-  - mix test --trace
+  - mix coveralls.travis
   - mix dialyzer --halt-exit-status
   - mix credo --strict
 cache:
   directories:
     - .dialyxir
+    - _build
+    - deps
