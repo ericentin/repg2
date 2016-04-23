@@ -8,7 +8,4 @@ defmodule RePG2DistributedTest do
     Application.stop(:repg2)
     :ok = Application.start(:repg2)
   end
-
-  test "basic distribution" do
-  end
 end

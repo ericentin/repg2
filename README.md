@@ -2,7 +2,9 @@
 
 # RePG2
 
-A translation of the original Erlang pg2 implementation to Elixir for educational purposes and potential future extensibility
+A translation of the original Erlang pg2 implementation to Elixir for educational purposes.
+
+**Do not use this package in production.** Instead, use the :pg2 module from the Erlang stdlib.
 
 ## Installation
 
