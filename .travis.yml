@@ -16,6 +16,9 @@ script:
   - elixir --sname a -S mix coveralls.travis
   - mix dialyzer --halt-exit-status
   - mix credo --strict
+after_script:
+  - mix deps.get --only docs
+  - MIX_ENV=docs mix inch.report
 cache:
   directories:
     - .dialyxir

@@ -8,7 +8,9 @@
   "exjsx": {:hex, :exjsx, "3.2.0"},
   "hackney": {:hex, :hackney, "1.6.0"},
   "idna": {:hex, :idna, "1.2.0"},
+  "inch_ex": {:hex, :inch_ex, "0.5.1"},
   "jsx": {:hex, :jsx, "2.6.2"},
   "metrics": {:hex, :metrics, "1.0.1"},
   "mimerl": {:hex, :mimerl, "1.0.2"},
+  "poison": {:hex, :poison, "2.1.0"},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.0"}}

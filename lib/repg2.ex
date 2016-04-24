@@ -25,7 +25,7 @@ defmodule RePG2 do
   @type name :: term
 
   @doc """
-  Create a process group.
+  Create a process group with given `name`.
 
   From the [Erlang pg2 docs](http://erlang.org/doc/man/pg2.html):
 
@@ -42,7 +42,7 @@ defmodule RePG2 do
   end
 
   @doc """
-  Delete a process group.
+  Delete the process group with given `name`.
 
   From the [Erlang pg2 docs](http://erlang.org/doc/man/pg2.html):
 
@@ -57,7 +57,7 @@ defmodule RePG2 do
 
 
   @doc """
-  Join a process group.
+  Join `pid` to the process group with given `name`.
 
   From the [Erlang pg2 docs](http://erlang.org/doc/man/pg2.html):
 
@@ -76,7 +76,7 @@ defmodule RePG2 do
   end
 
   @doc """
-  Leave a process group.
+  Make `pid` leave the process group with given `name`.
 
   From the [Erlang pg2 docs](http://erlang.org/doc/man/pg2.html):
 
@@ -95,7 +95,7 @@ defmodule RePG2 do
   end
 
   @doc """
-  Get all members of a process group.
+  Get all members of the process group with given `name`.
 
   From the [Erlang pg2 docs](http://erlang.org/doc/man/pg2.html):
 
@@ -113,7 +113,7 @@ defmodule RePG2 do
   end
 
   @doc """
-  Get all members of a process group on the local node.
+  Get all members of the process group with given `name` on the local node.
 
   From the [Erlang pg2 docs](http://erlang.org/doc/man/pg2.html):
 
@@ -131,7 +131,7 @@ defmodule RePG2 do
   end
 
   @doc """
-  Get a random member of a process group on the local node.
+  Get a random member of the process group with given `name` on the local node.
 
   From the [Erlang pg2 docs](http://erlang.org/doc/man/pg2.html):
 
