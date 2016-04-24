@@ -58,4 +58,52 @@ defmodule RePG2Test do
 
     assert RePG2.get_closest_pid(:test_group) == {:error, {:no_process, :test_group}}
   end
+
+  test "get closest pid returns random member" do
+    :rand.seed(:exsplus, {0, 0, 0})
+
+    assert RePG2.get_closest_pid(:test_group) == {:error, {:no_such_group, :test_group}}
+
+    :ok = RePG2.create(:test_group)
+
+    other_pid =
+      spawn_link fn ->
+        :timer.sleep(:infinity)
+      end
+
+    assert RePG2.join(:test_group, self()) == :ok
+
+    assert RePG2.join(:test_group, other_pid) == :ok
+
+    assert RePG2.get_closest_pid(:test_group) == self()
+
+    assert RePG2.get_closest_pid(:test_group) == other_pid
+  end
+
+  test "member dies" do
+    :ok = RePG2.create(:test_group)
+
+    other_pid =
+      spawn_link fn ->
+        receive do
+          :exit -> :ok
+        end
+      end
+
+    assert RePG2.join(:test_group, other_pid) == :ok
+
+    assert RePG2.get_closest_pid(:test_group) == other_pid
+
+    send other_pid, :exit
+
+    :timer.sleep(1_000)
+
+    assert RePG2.get_closest_pid(:test_group) == {:error, {:no_process, :test_group}}
+  end
+
+  test "worker should log unexpected calls" do
+    assert ExUnit.CaptureLog.capture_log(fn ->
+      catch_exit GenServer.call(RePG2.Worker, :unexpected_message)
+    end) =~ "The RePG2 server received an unexpected message:\nhandle_call(:unexpected_message"
+  end
 end

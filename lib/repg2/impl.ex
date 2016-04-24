@@ -128,7 +128,7 @@ defmodule RePG2.Impl do
     do: :ets.member(@ets_table, {:group, name})
 
   def worker_for(node_name),
-    do: {__MODULE__, node_name}
+    do: {RePG2.Worker, node_name}
 
   defp all_members() do
     for group <- all_groups(),
