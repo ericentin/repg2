@@ -58,6 +58,10 @@ defmodule RePG2.NodeManager do
     rpc_call_other_node(__MODULE__, :reset_node, [])
   end
 
+  def stop_repg2_other_node() do
+    rpc_call_other_node(Application, :stop, [:repg2])
+  end
+
   def reset_node() do
     _ = Application.stop(:repg2)
     :ok = Application.start(:repg2)

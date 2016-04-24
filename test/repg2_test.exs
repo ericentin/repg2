@@ -5,6 +5,8 @@ defmodule RePG2Test do
   @moduletag :capture_log
 
   setup do
+    RePG2.NodeManager.stop_repg2_other_node()
+
     Application.stop(:repg2)
     :ok = Application.start(:repg2)
   end
@@ -96,7 +98,7 @@ defmodule RePG2Test do
 
     send other_pid, :exit
 
-    :timer.sleep(1_000)
+    :timer.sleep(500)
 
     assert RePG2.get_closest_pid(:test_group) == {:error, {:no_process, :test_group}}
   end
