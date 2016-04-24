@@ -7,11 +7,7 @@ defmodule RePG2.Worker do
 
   alias RePG2.Impl
 
-  @ets_table RePG2
-
-  def start_link(),
-    do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
-
+  def start_link(), do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
 
   def init([]) do
     nodes = Node.list()
@@ -19,11 +15,11 @@ defmodule RePG2.Worker do
     :ok = :net_kernel.monitor_nodes(true)
 
     for new_node <- nodes do
-      send Impl.worker_for(new_node), {:new_repg2, Node.self()}
+      send worker_for(new_node), {:new_repg2, Node.self()}
       send self(), {:nodeup, new_node}
     end
 
-    @ets_table = :ets.new(@ets_table, [:ordered_set, :protected, :named_table])
+    :ok = Impl.init()
 
     {:ok, %{}}
   end
@@ -65,36 +61,49 @@ defmodule RePG2.Worker do
   end
 
 
-  def handle_cast({:exchange, _node, groups_and_members}, state) do
-    Impl.store(groups_and_members)
+  def handle_cast({:exchange, _node, all_memberships}, state) do
+    for {name, members} <- all_memberships,
+        Impl.assure_group(name),
+        member <- members -- Impl.group_members(name),
+      do: Impl.join_group(name, member)
 
     {:noreply, state}
   end
 
-  def handle_cast(_, state) do
-    {:noreply, state}
-  end
+  def handle_cast(_, state), do: {:noreply, state}
 
 
-  def handle_info({:DOWN, ref, :process, _pid, _info}, state) do
-    Impl.member_died(ref)
+  def handle_info({:DOWN, _ref, :process, pid, _info}, state) do
+    for name <- Impl.member_groups(pid),
+        membership <- Impl.memberships_in_group(pid, name),
+      do: Impl.leave_group(name, membership)
 
     {:noreply, state}
   end
 
   def handle_info({:nodeup, new_node}, state) do
-    Impl.exchange_all_members(new_node)
+    exchange_all_memberships(new_node)
 
     {:noreply, state}
   end
 
   def handle_info({:new_repg2, new_node}, state) do
-    Impl.exchange_all_members(new_node)
+    exchange_all_memberships(new_node)
 
     {:noreply, state}
   end
 
-  def handle_info(_, state) do
-    {:noreply, state}
+  def handle_info(_, state), do: {:noreply, state}
+
+
+  defp exchange_all_memberships(node_name) do
+    all_memberships =
+      for group <- Impl.all_groups(), do: {group, Impl.group_members(group)}
+
+    node_name
+    |> worker_for()
+    |> GenServer.cast({:exchange, Node.self(), all_memberships})
   end
+
+  defp worker_for(node_name), do: {__MODULE__, node_name}
 end

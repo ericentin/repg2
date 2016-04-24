@@ -171,8 +171,7 @@ defmodule RePG2 do
   > Returns a list of all known groups.
   """
   @spec which_groups() :: [name]
-  def which_groups(),
-    do: Impl.all_groups()
+  def which_groups(), do: Impl.all_groups()
 
   defp globally_locked_multi_call(name, message) do
     # Make a globally locked multi call to all RePG2 workers in the cluster.
