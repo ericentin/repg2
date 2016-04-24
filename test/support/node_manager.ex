@@ -1,9 +1,10 @@
 defmodule RePG2.NodeManager do
   def set_up_other_node() do
     if :net_adm.ping(other_node()) != :pong do
-      Task.start_link fn ->
-        System.cmd("mix", ["run", "--no-halt", "-e", "Node.start(:b, :shortnames)"], env: %{"MIX_ENV" => "test"})
-      end
+      {:ok, _} =
+        Task.start_link fn ->
+          System.cmd("mix", ["run", "--no-halt", "-e", "Node.start(:b, :shortnames)"], env: %{"MIX_ENV" => "test"})
+        end
 
       System.at_exit fn _status_code ->
         wait_for_other_node_up()
@@ -19,10 +20,9 @@ defmodule RePG2.NodeManager do
   end
 
   def receive_forever do
-    receive do
-    after
-      :infinity -> :ok
-    end
+    :timer.sleep(:infinity)
+
+    :ok
   end
 
   def other_node() do
@@ -48,7 +48,7 @@ defmodule RePG2.NodeManager do
 
   def reset_repg2() do
     rpc_call_other_node(Application, :stop, [:repg2])
-    Application.stop(:repg2)
+    _ = Application.stop(:repg2)
 
     :ok = rpc_call_other_node(Application, :start, [:repg2])
     :ok = Application.start(:repg2)
@@ -59,7 +59,7 @@ defmodule RePG2.NodeManager do
   end
 
   def reset_node() do
-    Application.stop(:repg2)
+    _ = Application.stop(:repg2)
     :ok = Application.start(:repg2)
   end
 
@@ -68,8 +68,8 @@ defmodule RePG2.NodeManager do
   end
 
   def disconnect() do
-    Node.stop()
+    :ok = Node.stop()
     :timer.sleep(1_000)
-    Node.start(:b, :shortnames)
+    {:ok, _} = Node.start(:b, :shortnames)
   end
 end
