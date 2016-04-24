@@ -76,7 +76,7 @@ defmodule RePG2DistributedTest do
 
     assert RePG2.join(:test_group, pid) == :ok
 
-    :timer.sleep(500)
+    :timer.sleep(1_000)
 
     assert_no_group_member(:test_group)
   end

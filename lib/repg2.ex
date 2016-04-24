@@ -35,7 +35,7 @@ defmodule RePG2 do
   @spec create(name) :: :ok
   def create(name) do
     unless Impl.group_exists?(name) do
-      global_atomic_multi_call(name, {:create, name})
+      globally_locked_multi_call(name, {:create, name})
     end
 
     :ok
@@ -50,7 +50,7 @@ defmodule RePG2 do
   """
   @spec delete(name) :: :ok
   def delete(name) do
-    global_atomic_multi_call(name, {:delete, name})
+    globally_locked_multi_call(name, {:delete, name})
 
     :ok
   end
@@ -67,7 +67,7 @@ defmodule RePG2 do
   @spec join(name, pid) :: :ok | {:error, {:no_such_group, name}}
   def join(name, pid) do
     if Impl.group_exists?(name) do
-      global_atomic_multi_call(name, {:join, name, pid})
+      globally_locked_multi_call(name, {:join, name, pid})
 
       :ok
     else
@@ -86,7 +86,7 @@ defmodule RePG2 do
   @spec leave(name, pid) :: :ok | {:error, {:no_such_group, name}}
   def leave(name, pid) do
     if Impl.group_exists?(name) do
-      global_atomic_multi_call(name, {:leave, name, pid})
+      globally_locked_multi_call(name, {:leave, name, pid})
 
       :ok
     else
@@ -174,8 +174,8 @@ defmodule RePG2 do
   def which_groups(),
     do: Impl.all_groups()
 
-  defp global_atomic_multi_call(name, message) do
-    # Make an atomic multi call to all RePG2 workers in the cluster.
+  defp globally_locked_multi_call(name, message) do
+    # Make a globally locked multi call to all RePG2 workers in the cluster.
     #
     # This function acquires a cluster-wide lock on the group `name`, ensuring
     # that only one node can update the group at a time. Then, a
