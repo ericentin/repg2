@@ -10,9 +10,9 @@ A highly-documented translation of the original Erlang pg2 implementation to Eli
 
 We all agree that documentation is awesome. However, the true specification of a code's behavior is the code itself. By reading the code of our favorite software, we can gain a deeper understanding. The benefits of this deeper understanding range from exploiting the performance characteristics of a particular implementation to applying its design principles in our own code.
 
-In my opinion, pg2 is one of the coolest tools in the OTP toolbox, and has been used in almost every distributed Elixir application I have ever worked with, including Phoenix. In a nutshell, pg2 allows you to group processes, using a simple API, across all of your nodes. In terms of the CAP theorem, pg2 is AP: available and partition tolerant. Despite the apparent complexity of such a task, it is (perhaps surprisingly) implemented in a single 400-line Erlang module using the same OTP modules available to our own code. The pg2 code is a great way to learn about distributed Erlang, and by extension, distributed Elixir.
+In my opinion, pg2 is one of the coolest tools in the OTP toolbox, and has been a component of almost every distributed Elixir application I have worked with, including Phoenix. In a nutshell, pg2 allows you to group processes, using a simple API, across all of your nodes. In terms of the CAP theorem, pg2 is AP: available and partition tolerant. Despite the apparent complexity of such a task, it is (perhaps surprisingly) implemented in a single 400-line Erlang module using the same OTP modules available to our own code. The pg2 code is a great way to learn about distributed Erlang, and by extension, distributed Elixir.
 
-That being said, if you are an Elixir developer, you don't necessarily know how to read Erlang. Additionally, despite the high quality of the implementation, pg2's Erlang code is not necessarily easy to read, even if you know Erlang. To aide my own understanding, I decided to attempt to translate the Erlang code into an idiomatic Elixir version, which I named RePG2.
+That being said, if you are an Elixir developer, you don't necessarily know how to read Erlang. Additionally, despite the high quality of the implementation, pg2's Erlang code is not necessarily easy to read, even if you know Erlang. To aid my own understanding, I decided to attempt to translate the Erlang code into an idiomatic Elixir version, which I named RePG2.
 
 ## The Translation
 
@@ -36,7 +36,7 @@ Some (known) ways in which RePG2 is not functionally identical to pg2:
 
   * pg2 is started under the [kernel_safe_sup](https://github.com/erlang/otp/blob/6664eed/lib/kernel/src/kernel.erl#L67), a special OTP kernel supervisor for important services that are considered safe to restart. RePG2 is implemented as a normal OTP application.
 
-  * pg2 will start itself if it is not yet started. RePG2 expects to be added to your :applications in mix.exs and will not start itself.
+  * pg2 will start itself if it is not yet started. RePG2 expects to be added to your :applications in mix.exs (see "Installation") and will not start itself.
 
 ## How pg2 (and RePG2) Works
 
@@ -60,19 +60,19 @@ pg2 is implemented using standard OTP modules. RePG2 is implemented using the sa
 
 RePG2 is built on top of:
 
-  * GenServer - basic client-server interactions
-  * global - global locks
-  * net_kernel - node up/down notifications
-  * Node - information about node
-  * ets - group data storage
+  * [GenServer](http://elixir-lang.org/docs/stable/elixir/GenServer.html) - basic client-server interactions
+  * [global](http://erlang.org/doc/man/global.html) - global locks
+  * [net_kernel](http://erlang.org/doc/man/net_kernel.html) - node up/down notifications
+  * [Node](http://elixir-lang.org/docs/stable/elixir/Node.html) - information about node
+  * [ets](http://erlang.org/doc/man/ets.html) - group data storage
 
 `RePG2.Application` contains the entry point for the `:repg2` OTP application. Its only task is to start a `RePG2.Worker` GenServer, which is responsible for all inter-node communication.
 
 The `RePG2` module provides the public interface. It is possible to create, delete, join, and leave groups. You can also get all the groups, get a group's members across the cluster, get all of a group's members on the local node, and find a random member (giving preference to members on the local node).
 
-At the center of RePG2 is an ETS table. The table contains the group names and process memberships, is present on all RePG2 nodes, and is owned by a `RePG2.Worker`. `RePG2.ETS` contains functions that wrap the `ets` module for interaction with the RePG2 ETS table, and `RePG2.Impl` is the implementation of a low-level API on top of `RePG2.ETS`. `RePG2` then uses the `RePG2.Impl` API on top of `RePG2.Workers` to implement the functionality of the public interface.
+At the center of RePG2 is an ETS table which contains the group names and process memberships. `RePG2.ETS` contains functions that wrap the `ets` module for interaction with the RePG2 ETS table, and `RePG2.Impl` is the implementation of a low-level API on top of `RePG2.ETS`. `RePG2` then uses the `RePG2.Impl` API on top of `RePG2.Workers` to implement the functionality of the public interface.
 
-When group/process information is read, the local node can simply read the data out of the ETS table. This is very fast, and because the ETS table can be accessed from any process, there is no possibility of one "gatekeeper" process becoming a bottleneck.
+The RePG2 ETS table is owned by a `RePG2.Worker`, and is present on all RePG2 nodes. When group/process information is read, the local node can simply read the data out of the ETS table. This is very fast, and because the ETS table can be accessed from any process, there is no possibility of one "gatekeeper" process becoming a bottleneck.
 
 Updating group/process information is slightly more complicated. First, the calling process requests a lock across the cluster using the `global` module's `trans` function. This lock is scoped such that if another process attempts to modify the same group, the other process will be excluded. Once the lock is acquired, a GenServer call is made to every `RePG2.Worker` in the cluster. The lock isolates each update, ensuring that all connected nodes have the same view of the data.
 
