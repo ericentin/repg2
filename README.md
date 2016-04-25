@@ -87,7 +87,7 @@ Due to the monitoring of joined processes and the exchange of data when a new `R
   1. Add repg2 to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:repg2, "~> 0.0.3"}]
+          [{:repg2, "~> 0.0.4"}]
         end
 
   2. Ensure repg2 is started before your application:
