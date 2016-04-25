@@ -9,6 +9,23 @@ defmodule RePG2.Worker do
 
   def start_link(), do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
 
+  @doc """
+  Make a globally locked multi call to all `RePG2.Worker`s in the cluster.
+
+  This function acquires a cluster-wide lock on the group `name`, ensuring
+  that only one node can update the group at a time. Then, a
+  `GenServer.multi_call` is made to all `RePG2.Worker`s with the given
+  `message`.
+  """
+  def globally_locked_multi_call(name, message) do
+    :global.trans {{__MODULE__, name}, self()}, fn ->
+      all_nodes = Node.list([:visible, :this])
+
+      GenServer.multi_call(all_nodes, RePG2.Worker, message)
+    end
+  end
+
+
   def init([]) do
     nodes = Node.list()
 

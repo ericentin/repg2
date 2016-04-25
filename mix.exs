@@ -45,7 +45,7 @@ defmodule RePG2.Mixfile do
   end
 
   defp description do
-    "A translation of the original Erlang pg2 implementation to Elixir for educational purposes."
+    "A highly-documented translation of the original Erlang pg2 implementation to Elixir for educational purposes."
   end
 
   defp package do
