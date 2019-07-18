@@ -1,4 +1,6 @@
 defmodule RePG2Test do
+  @moduledoc false
+
   use ExUnit.Case
   doctest RePG2
 

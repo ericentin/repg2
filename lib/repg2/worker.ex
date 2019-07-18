@@ -7,7 +7,7 @@ defmodule RePG2.Worker do
 
   alias RePG2.Impl
 
-  def start_link(), do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  def start_link, do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
 
   @doc """
   Make a globally locked multi call to all `RePG2.Worker`s in the cluster.

@@ -3,7 +3,7 @@ defmodule RePG2.Impl do
 
   alias RePG2.ETS
 
-  def init(), do: ETS.new()
+  def init, do: ETS.new()
 
   def assure_group(name) do
     key = {:group, name}
@@ -84,7 +84,7 @@ defmodule RePG2.Impl do
         do: membership
   end
 
-  def all_groups(), do: for([name] <- ETS.match({{:group, :"$1"}}), do: name)
+  def all_groups, do: for([name] <- ETS.match({{:group, :"$1"}}), do: name)
 
   def member_groups(pid) do
     for [name] <- ETS.match({{:pid, pid, :"$1"}}), do: name

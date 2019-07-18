@@ -170,5 +170,5 @@ defmodule RePG2 do
   > Returns a list of all known groups.
   """
   @spec which_groups() :: [name]
-  def which_groups(), do: Impl.all_groups()
+  def which_groups, do: Impl.all_groups()
 end

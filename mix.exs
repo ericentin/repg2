@@ -8,10 +8,10 @@ defmodule RePG2.Mixfile do
       app: :repg2,
       version: @version,
       elixir: "~> 1.2",
-      elixirc_paths: elixirc_paths(Mix.env),
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
-      deps: deps,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
       dialyzer: [plt_file: ".dialyxir/.local.plt"],
       source_url: "https://github.com/antipax/repg2",
       docs: [
@@ -19,10 +19,15 @@ defmodule RePG2.Mixfile do
         extras: ["README.md"],
         source_ref: "v#{@version}"
       ],
-      description: description,
-      package: package,
+      description: description(),
+      package: package(),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 

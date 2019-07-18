@@ -1,5 +1,7 @@
 defmodule RePG2.NodeManager do
-  def set_up_other_node() do
+  @moduledoc false
+
+  def set_up_other_node do
     if :net_adm.ping(other_node()) != :pong do
       {:ok, _} =
         Task.start_link(fn ->
@@ -17,7 +19,7 @@ defmodule RePG2.NodeManager do
     end
   end
 
-  def spawn_proc_on_other_node() do
+  def spawn_proc_on_other_node do
     Node.spawn(other_node(), __MODULE__, :receive_forever, [])
   end
 
@@ -27,13 +29,13 @@ defmodule RePG2.NodeManager do
     :ok
   end
 
-  def other_node() do
+  def other_node do
     "a@" <> hostname = node() |> to_string()
 
     :"b@#{hostname}"
   end
 
-  def wait_for_other_node_up() do
+  def wait_for_other_node_up do
     case :net_adm.ping(other_node()) do
       :pong ->
         :ok
@@ -48,7 +50,7 @@ defmodule RePG2.NodeManager do
     :rpc.call(other_node(), module, function, args)
   end
 
-  def reset_repg2() do
+  def reset_repg2 do
     rpc_call_other_node(Application, :stop, [:repg2])
     _ = Application.stop(:repg2)
 
@@ -56,24 +58,24 @@ defmodule RePG2.NodeManager do
     :ok = Application.start(:repg2)
   end
 
-  def reset_other_node() do
+  def reset_other_node do
     rpc_call_other_node(__MODULE__, :reset_node, [])
   end
 
-  def stop_repg2_other_node() do
+  def stop_repg2_other_node do
     rpc_call_other_node(Application, :stop, [:repg2])
   end
 
-  def reset_node() do
+  def reset_node do
     _ = Application.stop(:repg2)
     :ok = Application.start(:repg2)
   end
 
-  def disconnect_other_node() do
+  def disconnect_other_node do
     rpc_call_other_node(__MODULE__, :disconnect, [])
   end
 
-  def disconnect() do
+  def disconnect do
     :ok = Node.stop()
     :timer.sleep(1_000)
     {:ok, _} = Node.start(:b, :shortnames)
