@@ -7,7 +7,7 @@ defmodule RePG2.Application do
     import Supervisor.Spec, warn: false
 
     children = [
-      worker(RePG2.Worker, []),
+      worker(RePG2.Worker, [])
     ]
 
     opts = [strategy: :one_for_one, name: RePG2.Supervisor]

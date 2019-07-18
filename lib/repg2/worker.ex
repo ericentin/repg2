@@ -18,13 +18,12 @@ defmodule RePG2.Worker do
   `message`.
   """
   def globally_locked_multi_call(name, message) do
-    :global.trans {{__MODULE__, name}, self()}, fn ->
+    :global.trans({{__MODULE__, name}, self()}, fn ->
       all_nodes = Node.list([:visible, :this])
 
       GenServer.multi_call(all_nodes, RePG2.Worker, message)
-    end
+    end)
   end
-
 
   def init([]) do
     nodes = Node.list()
@@ -32,15 +31,14 @@ defmodule RePG2.Worker do
     :ok = :net_kernel.monitor_nodes(true)
 
     for new_node <- nodes do
-      send worker_for(new_node), {:new_repg2, Node.self()}
-      send self(), {:nodeup, new_node}
+      send(worker_for(new_node), {:new_repg2, Node.self()})
+      send(self(), {:nodeup, new_node})
     end
 
     :ok = Impl.init()
 
     {:ok, %{}}
   end
-
 
   def handle_call({:create, name}, _from, state) do
     Impl.assure_group(name)
@@ -67,33 +65,30 @@ defmodule RePG2.Worker do
   end
 
   def handle_call(message, from, state) do
-    _ = Logger.warn(
-      """
+    _ =
+      Logger.warn("""
       The RePG2 server received an unexpected message:
-      handle_call(#{inspect message}, #{inspect from}, #{inspect state})
-      """
-    )
+      handle_call(#{inspect(message)}, #{inspect(from)}, #{inspect(state)})
+      """)
 
     {:noreply, state}
   end
-
 
   def handle_cast({:exchange, _node, all_memberships}, state) do
     for {name, members} <- all_memberships,
         Impl.assure_group(name),
         member <- members -- Impl.group_members(name),
-      do: Impl.join_group(name, member)
+        do: Impl.join_group(name, member)
 
     {:noreply, state}
   end
 
   def handle_cast(_, state), do: {:noreply, state}
 
-
   def handle_info({:DOWN, _ref, :process, pid, _info}, state) do
     for name <- Impl.member_groups(pid),
         membership <- Impl.memberships_in_group(pid, name),
-      do: Impl.leave_group(name, membership)
+        do: Impl.leave_group(name, membership)
 
     {:noreply, state}
   end
@@ -112,10 +107,8 @@ defmodule RePG2.Worker do
 
   def handle_info(_, state), do: {:noreply, state}
 
-
   defp exchange_all_memberships(node_name) do
-    all_memberships =
-      for group <- Impl.all_groups(), do: {group, Impl.group_members(group)}
+    all_memberships = for group <- Impl.all_groups(), do: {group, Impl.group_members(group)}
 
     node_name
     |> worker_for()

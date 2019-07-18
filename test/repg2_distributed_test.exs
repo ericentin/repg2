@@ -84,13 +84,14 @@ defmodule RePG2DistributedTest do
   defp assert_group_membership(name, pid, pid_is_local) do
     assert RePG2.get_members(name) == [pid]
 
-    assert RePG2.get_local_members(name) == if pid_is_local, do: [pid], else: []
+    assert RePG2.get_local_members(name) == if(pid_is_local, do: [pid], else: [])
 
     assert RePG2.get_closest_pid(name) == pid
 
     assert rpc_call_other_node(RePG2, :get_members, [name]) == [pid]
 
-    assert rpc_call_other_node(RePG2, :get_local_members, [name]) == if pid_is_local, do: [], else: [pid]
+    assert rpc_call_other_node(RePG2, :get_local_members, [name]) ==
+             if(pid_is_local, do: [], else: [pid])
 
     assert rpc_call_other_node(RePG2, :get_closest_pid, [name]) == pid
   end
@@ -108,5 +109,4 @@ defmodule RePG2DistributedTest do
 
     assert rpc_call_other_node(RePG2, :get_closest_pid, [name]) == {:error, {:no_process, name}}
   end
-
 end

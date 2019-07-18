@@ -55,7 +55,6 @@ defmodule RePG2 do
     :ok
   end
 
-
   @doc """
   Join `pid` to the process group with given `name`.
 
@@ -140,7 +139,7 @@ defmodule RePG2 do
   > it chooses one randomly.
   """
   @spec get_closest_pid(name) ::
-    pid | {:error, {:no_such_group, name} | {:no_process, name}}
+          pid | {:error, {:no_such_group, name} | {:no_process, name}}
   def get_closest_pid(name) do
     case get_local_members(name) do
       [pid] ->
@@ -155,7 +154,7 @@ defmodule RePG2 do
             Enum.random(members)
         end
 
-      members when is_list members ->
+      members when is_list(members) ->
         Enum.random(members)
 
       other ->

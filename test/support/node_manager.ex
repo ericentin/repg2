@@ -2,14 +2,16 @@ defmodule RePG2.NodeManager do
   def set_up_other_node() do
     if :net_adm.ping(other_node()) != :pong do
       {:ok, _} =
-        Task.start_link fn ->
-          System.cmd("mix", ["run", "--no-halt", "-e", "Node.start(:b, :shortnames)"], env: %{"MIX_ENV" => "test"})
-        end
+        Task.start_link(fn ->
+          System.cmd("mix", ["run", "--no-halt", "-e", "Node.start(:b, :shortnames)"],
+            env: %{"MIX_ENV" => "test"}
+          )
+        end)
 
-      System.at_exit fn _status_code ->
+      System.at_exit(fn _status_code ->
         wait_for_other_node_up()
-        :rpc.call(other_node, :init, :stop, [])
-      end
+        :rpc.call(other_node(), :init, :stop, [])
+      end)
 
       wait_for_other_node_up()
     end
