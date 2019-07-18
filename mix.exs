@@ -35,12 +35,12 @@ defmodule RePG2.Mixfile do
 
   defp deps do
     [
-      {:credo, "~> 0.3", only: [:dev, :test]},
-      {:dialyxir, "~> 0.3", only: [:dev, :test]},
-      {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.11", only: :dev},
-      {:excoveralls, "~> 0.4", only: :test},
-      {:inch_ex, ">= 0.0.0", only: :docs}
+      {:credo, "~> 1.1", only: [:dev, :test]},
+      {:dialyxir, "~> 0.5", only: [:dev, :test]},
+      {:earmark, "~> 1.3", only: :dev},
+      {:ex_doc, "~> 0.21", only: :dev},
+      {:excoveralls, "~> 0.11", only: :test},
+      {:inch_ex, "~> 1.0", only: :docs}
     ]
   end
 
