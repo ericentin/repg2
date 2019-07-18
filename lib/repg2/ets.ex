@@ -3,7 +3,7 @@ defmodule RePG2.ETS do
 
   @ets_table __MODULE__
 
-  def new() do
+  def new do
     @ets_table = :ets.new(@ets_table, [:ordered_set, :protected, :named_table])
 
     :ok

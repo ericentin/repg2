@@ -1,4 +1,6 @@
 defmodule RePG2Test do
+  @moduledoc false
+
   use ExUnit.Case
   doctest RePG2
 
@@ -69,9 +71,9 @@ defmodule RePG2Test do
     :ok = RePG2.create(:test_group)
 
     other_pid =
-      spawn_link fn ->
+      spawn_link(fn ->
         :timer.sleep(:infinity)
-      end
+      end)
 
     assert RePG2.join(:test_group, self()) == :ok
 
@@ -86,17 +88,17 @@ defmodule RePG2Test do
     :ok = RePG2.create(:test_group)
 
     other_pid =
-      spawn_link fn ->
+      spawn_link(fn ->
         receive do
           :exit -> :ok
         end
-      end
+      end)
 
     assert RePG2.join(:test_group, other_pid) == :ok
 
     assert RePG2.get_closest_pid(:test_group) == other_pid
 
-    send other_pid, :exit
+    send(other_pid, :exit)
 
     :timer.sleep(500)
 
@@ -105,7 +107,8 @@ defmodule RePG2Test do
 
   test "worker should log unexpected calls" do
     assert ExUnit.CaptureLog.capture_log(fn ->
-      catch_exit GenServer.call(RePG2.Worker, :unexpected_message)
-    end) =~ "The RePG2 server received an unexpected message:\nhandle_call(:unexpected_message"
+             catch_exit(GenServer.call(RePG2.Worker, :unexpected_message))
+           end) =~
+             "The RePG2 server received an unexpected message:\nhandle_call(:unexpected_message"
   end
 end

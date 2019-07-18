@@ -1,8 +1,8 @@
 language: elixir
 elixir:
-  - 1.2.4
+  - 1.8.2
 otp_release:
-  - 18.3
+  - 22.0
 sudo: false
 env:
   - MIX_ENV=test
@@ -11,7 +11,7 @@ before_install:
   - epmd -daemon
 before_script:
   - mix compile --warnings-as-errors
-  - mix dialyzer.plt
+  - mix dialyzer
 script:
   - elixir --sname a -S mix coveralls.travis
   - mix dialyzer --halt-exit-status

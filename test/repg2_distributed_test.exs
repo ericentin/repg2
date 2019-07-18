@@ -1,4 +1,6 @@
 defmodule RePG2DistributedTest do
+  @moduledoc false
+
   use ExUnit.Case
 
   import RePG2.NodeManager
@@ -13,7 +15,7 @@ defmodule RePG2DistributedTest do
   test "nodes share groups" do
     :ok = RePG2.create(:test_group)
 
-    assert RePG2.join(:test_group, self) == :ok
+    assert RePG2.join(:test_group, self()) == :ok
 
     assert_group_membership(:test_group, self(), true)
 
@@ -25,7 +27,7 @@ defmodule RePG2DistributedTest do
 
     assert_group_membership(:test_group2, pid, false)
 
-    assert RePG2.leave(:test_group, self) == :ok
+    assert RePG2.leave(:test_group, self()) == :ok
 
     assert_no_group_member(:test_group)
 
@@ -37,7 +39,7 @@ defmodule RePG2DistributedTest do
   test "exchange1" do
     :ok = RePG2.create(:test_group)
 
-    assert RePG2.join(:test_group, self) == :ok
+    assert RePG2.join(:test_group, self()) == :ok
 
     assert_group_membership(:test_group, self(), true)
 
@@ -84,13 +86,14 @@ defmodule RePG2DistributedTest do
   defp assert_group_membership(name, pid, pid_is_local) do
     assert RePG2.get_members(name) == [pid]
 
-    assert RePG2.get_local_members(name) == if pid_is_local, do: [pid], else: []
+    assert RePG2.get_local_members(name) == if(pid_is_local, do: [pid], else: [])
 
     assert RePG2.get_closest_pid(name) == pid
 
     assert rpc_call_other_node(RePG2, :get_members, [name]) == [pid]
 
-    assert rpc_call_other_node(RePG2, :get_local_members, [name]) == if pid_is_local, do: [], else: [pid]
+    assert rpc_call_other_node(RePG2, :get_local_members, [name]) ==
+             if(pid_is_local, do: [], else: [pid])
 
     assert rpc_call_other_node(RePG2, :get_closest_pid, [name]) == pid
   end
@@ -108,5 +111,4 @@ defmodule RePG2DistributedTest do
 
     assert rpc_call_other_node(RePG2, :get_closest_pid, [name]) == {:error, {:no_process, name}}
   end
-
 end

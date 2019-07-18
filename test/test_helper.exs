@@ -1,5 +1,5 @@
 exclude =
-  if Node.alive? do
+  if Node.alive?() do
     RePG2.NodeManager.set_up_other_node()
 
     []

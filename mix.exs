@@ -1,17 +1,17 @@
 defmodule RePG2.Mixfile do
   use Mix.Project
 
-  @version "0.0.4"
+  @version "1.0.0"
 
   def project do
     [
       app: :repg2,
       version: @version,
-      elixir: "~> 1.2",
-      elixirc_paths: elixirc_paths(Mix.env),
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
-      deps: deps,
+      elixir: "~> 1.8",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
       dialyzer: [plt_file: ".dialyxir/.local.plt"],
       source_url: "https://github.com/antipax/repg2",
       docs: [
@@ -19,10 +19,15 @@ defmodule RePG2.Mixfile do
         extras: ["README.md"],
         source_ref: "v#{@version}"
       ],
-      description: description,
-      package: package,
+      description: description(),
+      package: package(),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -35,12 +40,12 @@ defmodule RePG2.Mixfile do
 
   defp deps do
     [
-      {:credo, "~> 0.3", only: [:dev, :test]},
-      {:dialyxir, "~> 0.3", only: [:dev, :test]},
-      {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.11", only: :dev},
-      {:excoveralls, "~> 0.4", only: :test},
-      {:inch_ex, ">= 0.0.0", only: :docs}
+      {:credo, "~> 1.1", only: [:dev, :test]},
+      {:dialyxir, "~> 0.5", only: [:dev, :test]},
+      {:earmark, "~> 1.3", only: :dev},
+      {:ex_doc, "~> 0.21", only: :dev},
+      {:excoveralls, "~> 0.11", only: :test},
+      {:inch_ex, "~> 1.0", only: :docs}
     ]
   end
 
@@ -61,5 +66,5 @@ defmodule RePG2.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 end
